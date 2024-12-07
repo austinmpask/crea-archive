@@ -12,7 +12,7 @@
 #		-coo
 */
 
-#define 		VERSION 	"crea v1.0.1"
+#define 		VERSION 	"crea v1.1.1"
 
 native WP_Hash(buffer[], len, const str[]);
 native IsValidVehicle(vehicleid);
@@ -21,6 +21,8 @@ native IsValidVehicle(vehicleid);
 //#define _DEBUG	5
 
 //#include <a_http>
+#include <Pawn.RakNet>
+#include <dl-compat>
 #include <a_samp>
 #include <a_zones>
 #include <crashdetect>
@@ -10234,7 +10236,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new creationPin[9];
 				cache_get_field_content(0, "CreationPin", creationPin);
 				
-				if(!strcmp(inputtext, creationPin, true))
+				/*if(!strcmp(inputtext, creationPin, true))
+				{
+					ShowPlayerDialog(playerid, 3895, DIALOG_STYLE_INPUT, "Registration", "Please enter your password to register your new account.", "Register", "Cancel");
+				}*/
+				if(true)
 				{
 					ShowPlayerDialog(playerid, 3895, DIALOG_STYLE_INPUT, "Registration", "Please enter your password to register your new account.", "Register", "Cancel");
 				}
@@ -10550,7 +10556,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 1:
 					{
-						ShowPlayerDialog(playerid, MAP_JOBS, DIALOG_STYLE_LIST, "Choose a job", "Arms Dealer\nArms Dealer Matruns (/getmats)\nCar Jacker\nDeliverer\nDeliverer Supplies (/getsupplies)\nFisherman\nFisherman Sellfish (/sellfish)\nGarbage Man\nMechanic\nPizza boy\nTrucker\nBack\n", "Select", "Cancel");
+						//ShowPlayerDialog(playerid, MAP_JOBS, DIALOG_STYLE_LIST, "Choose a job", "Arms Dealer\nArms Dealer Matruns (/getmats)\nCar Jacker\nDeliverer\nDeliverer Supplies (/getsupplies)\nFisherman\nFisherman Sellfish (/sellfish)\nGarbage Man\nMechanic\nPizza boy\nTrucker\nBack\n", "Select", "Cancel");
+						ShowPlayerDialog(playerid, MAP_JOBS, DIALOG_STYLE_LIST, "Choose a job", "Arms Dealer\nArms Dealer Matruns (/getmats)\nCar Jacker\nDeliverer\nDeliverer Supplies (/getsupplies)\nFisherman\nFisherman Sellfish (/sellfish)\n---\nMechanic\n---\n---\nBack\n", "Select", "Cancel");
 					}
 					case 2:
 					{
@@ -19609,6 +19616,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 
 			SendClientMessage(playerid, -1, "Thank you for answering and helping to improve crea SA:MP Roleplay.");
+			SendClientMessage(playerid, PINK, "----------------------------------------------------------------------------------------");
+			SendClientMessage(playerid, YELLOW, "Have you checked out our forums yet? Go to https://crearoleplay.com");
+			SendClientMessage(playerid, YELLOW, "Also, join our Discord! You can find the link on the forums.");
+			SendClientMessage(playerid, PINK, "----------------------------------------------------------------------------------------");
 		}
 
 		case DIALOG_CHARACTER_KILL_1:
@@ -22100,7 +22111,8 @@ public OnPlayerDirectorySearch(playerid)
 			}
 			else 
 			{
-				ShowPlayerDialog(playerid, DIALOG_CREATION_PIN, DIALOG_STYLE_INPUT, "Creation Pin", "Please enter the creation pin given to you by an admin.", "Enter", "Cancel");
+				//ShowPlayerDialog(playerid, DIALOG_CREATION_PIN, DIALOG_STYLE_INPUT, "Creation Pin", "Please enter the creation pin given to you by an admin.", "Enter", "Cancel");
+				ShowPlayerDialog(playerid, 3895, DIALOG_STYLE_INPUT, "Registration", "Please enter your password to register your new account.", "Register", "Cancel");
 			}
 		}
 	}
@@ -45264,7 +45276,7 @@ ptask OneSecondPublicPlayer[1000](i)
 				format(string, sizeof(string), "You have earned $%s.", IntToFormattedStr(PayCheque));
 				SendClientMessage(i, GREY, string);
 				//Microtransactions
-				format(string, sizeof(string), "$%s not enough? Go to the In-Game Purchases section at https://crearoleplay.com to purchase more In-Game currency!", IntToFormattedStr(PayCheque));
+				//format(string, sizeof(string), "$%s not enough? Go to the In-Game Purchases section at https://crearoleplay.com to purchase more In-Game currency!", IntToFormattedStr(PayCheque));
 				SendClientMessage(i, ORANGE, string);
 				if(bonus > 0)
 				{
@@ -45275,7 +45287,7 @@ ptask OneSecondPublicPlayer[1000](i)
 				if (Player[i][VipRank] > 0) {
 					switch(Player[i][VipRank])
 					{
-						case 0:	SendClientMessage(i, YELLOW, "Buying a VIP membership will give you an increase on your pay cheques. Check it out!");
+						case 0:	SendClientMessage(i, ORANGE, "Buying a VIP membership will give you an increase on your pay cheques. Check it out! https://crearoleplay.com");
 						case 1:
 						{
 							SendClientMessage(i, YELLOW, "You've got 10 percent interest added due to your VIP membership.");
@@ -64120,10 +64132,10 @@ CMD:useslots(playerid, params[])
 	if(Groups[Player[playerid][InGroupHQ]][Chips] == 0)
 		return SendClientMessage(playerid, -1, "The games in this casino are unavailable at the time being."); 
 
-	if(Player[playerid][PlayingHours] < 10 && Player[playerid][VipRank] < 1)
+	if(Player[playerid][PlayingHours] < 2 && Player[playerid][VipRank] < 1)
 	{
 		PlayerPlaySound(playerid, 5451, 0.0, 0.0, 0.0);
-		return SendClientMessage(playerid, -1, "You must have over 10 hours to play on a slot machine.");
+		return SendClientMessage(playerid, -1, "You must have over 2 hours to play on a slot machine.");
 	}
 
 	if(Player[playerid][PlayingSlots])
@@ -70850,11 +70862,25 @@ public OnPlayerLoadData(playerid)
 	{
 		format(string, sizeof(string), "Welcome back, %s. You last logged in earlier today at %02d:%02d.", GetName(playerid), Player[playerid][LastLoginHour], Player[playerid][LastLoginMinute]);
 		SendClientMessage(playerid, WHITE, string);
+		if(Player[playerid][PlayingHours] <= 1)
+		{
+			SendClientMessage(playerid, PINK, "----------------------------------------------------------------------------------------");
+			SendClientMessage(playerid, YELLOW, "Have you checked out our forums yet? Go to https://crearoleplay.com");
+			SendClientMessage(playerid, YELLOW, "Also, join our Discord! You can find the link on the forums.");
+			SendClientMessage(playerid, PINK, "----------------------------------------------------------------------------------------");
+		}
 	}
 	else
 	{
 		format(string, sizeof(string), "Welcome back, %s. You last logged in on %d/%d/%d at %02d:%02d.", GetName(playerid), Player[playerid][LastLoginDay], Player[playerid][LastLoginMonth], Player[playerid][LastLoginYear], Player[playerid][LastLoginHour], Player[playerid][LastLoginMinute]);
 		SendClientMessage(playerid, WHITE, string);
+		if(Player[playerid][PlayingHours] <= 1)
+		{
+			SendClientMessage(playerid, PINK, "----------------------------------------------------------------------------------------");
+			SendClientMessage(playerid, YELLOW, "Have you checked out our forums yet? Go to https://crearoleplay.com");
+			SendClientMessage(playerid, YELLOW, "Also, join our Discord! You can find the link on the forums.");
+			SendClientMessage(playerid, PINK, "----------------------------------------------------------------------------------------");
+		}
 	}
 
 	if(AnnounceExist == 1)
@@ -74879,8 +74905,8 @@ stock IsExistingMaskID(number)
 
 CMD:mask(playerid, params[])
 {
-	if(Player[playerid][PlayingHours] < 20 && Player[playerid][VipRank] < 1)
-		return SendClientMessage(playerid, -1, "You need at least 20 playing hours to use this command.");
+	if(Player[playerid][PlayingHours] < 10 && Player[playerid][VipRank] < 1)
+		return SendClientMessage(playerid, -1, "You need at least 10 playing hours to use this command.");
 		
 	if(Player[playerid][MaskBan] == 1)
 		return SendClientMessage(playerid, -1, "You are banned from using /mask.");
